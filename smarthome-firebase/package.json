@@ -1,0 +1,15 @@
+{
+  "name": "smarthome-iot-backend",
+  "version": "1.0.0",
+  "description": "Smart Home IoT Backend - Firebase + Node.js + TypeScript",
+  "private": true,
+  "scripts": {
+    "build": "cd functions && npm run build",
+    "deploy": "firebase deploy",
+    "deploy:functions": "firebase deploy --only functions",
+    "deploy:rules": "firebase deploy --only database",
+    "emulate": "firebase emulators:start",
+    "emulate:functions": "firebase emulators:start --only functions,database,auth",
+    "lint": "cd functions && npm run lint"
+  }
+}

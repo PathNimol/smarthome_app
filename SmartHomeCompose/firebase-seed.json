@@ -1,0 +1,128 @@
+// firebase-seed.json — Import to Firebase Console to seed initial data
+// Dashboard > Realtime Database > ⋮ > Import JSON
+
+{
+  "smarthome": {
+    "devices": {
+      "fan": {
+        "state": "ON",
+        "lastChanged": 1716624120000,
+        "controlledBy": "manual",
+        "powerWatts": 45
+      },
+      "led_light": {
+        "state": "OFF",
+        "lastChanged": 1716617200000,
+        "controlledBy": "auto",
+        "powerWatts": 0
+      }
+    },
+    "sensors": {
+      "water_level": {
+        "percentage": 71,
+        "status": "normal",
+        "lastUpdated": 1716624180000
+      },
+      "rain": {
+        "isRaining": true,
+        "intensity": "moderate",
+        "detectedAt": 1716623520000,
+        "active": true
+      }
+    },
+    "system": {
+      "lastSync": 1716624200000
+    }
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ESP32 Pseudocode (Arduino / C++) — for reference when hardware is ready
+// Libraries: Firebase ESP32 Client (mobizt), ArduinoJson
+
+/*
+#include <FirebaseESP32.h>
+#include <WiFi.h>
+
+#define WIFI_SSID     "YourWiFi"
+#define WIFI_PASSWORD "YourPass"
+#define API_KEY       "your-firebase-api-key"
+#define DATABASE_URL  "https://your-project.firebaseio.com"
+
+#define FAN_RELAY_PIN   26
+#define LED_RELAY_PIN   27
+#define RAIN_SENSOR_PIN 34   // Analog
+#define WATER_ECHO_PIN  18   // HC-SR04 ultrasonic
+#define WATER_TRIG_PIN  19
+
+FirebaseData fbdo;
+FirebaseAuth auth;
+FirebaseConfig config;
+
+void setup() {
+  Serial.begin(115200);
+  pinMode(FAN_RELAY_PIN, OUTPUT);
+  pinMode(LED_RELAY_PIN, OUTPUT);
+
+  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+  while (WiFi.status() != WL_CONNECTED) delay(500);
+
+  config.api_key = API_KEY;
+  config.database_url = DATABASE_URL;
+  auth.user.email = "esp32@smarthome.io";
+  auth.user.password = "esp32-secret";
+  Firebase.begin(&config, &auth);
+  Firebase.reconnectWiFi(true);
+
+  // Listen for device state changes (real-time)
+  Firebase.RTDB.beginStream(&fbdo, "/smarthome/devices");
+}
+
+void loop() {
+  // ── Listen for app commands ──────────────────────────────────────────
+  if (Firebase.RTDB.readStream(&fbdo) && fbdo.streamAvailable()) {
+    String path = fbdo.streamPath();
+    if (path.indexOf("fan/state") >= 0) {
+      bool fanOn = fbdo.stringData() == "ON";
+      digitalWrite(FAN_RELAY_PIN, fanOn ? HIGH : LOW);
+    }
+    if (path.indexOf("led_light/state") >= 0) {
+      bool ledOn = fbdo.stringData() == "ON";
+      digitalWrite(LED_RELAY_PIN, ledOn ? HIGH : LOW);
+    }
+  }
+
+  // ── Push sensor data every 5 seconds ────────────────────────────────
+  static unsigned long lastSensorPush = 0;
+  if (millis() - lastSensorPush > 5000) {
+    lastSensorPush = millis();
+
+    // Water level (HC-SR04 ultrasonic → convert distance to %)
+    int waterPct = measureWaterLevel();
+    Firebase.RTDB.setInt(&fbdo, "/smarthome/sensors/water_level/percentage", waterPct);
+    Firebase.RTDB.setInt(&fbdo, "/smarthome/sensors/water_level/lastUpdated", (int)time(nullptr));
+
+    // Rain sensor
+    int rainRaw = analogRead(RAIN_SENSOR_PIN);
+    bool isRaining = rainRaw < 2048;          // Calibrate threshold
+    String intensity = rainRaw < 500  ? "heavy"
+                     : rainRaw < 1500 ? "moderate"
+                     : rainRaw < 2048 ? "light"
+                     : "none";
+    Firebase.RTDB.setBool(&fbdo, "/smarthome/sensors/rain/isRaining", isRaining);
+    Firebase.RTDB.setString(&fbdo, "/smarthome/sensors/rain/intensity", intensity);
+  }
+}
+
+int measureWaterLevel() {
+  // HC-SR04: distance → % (calibrate maxDist for empty tank)
+  digitalWrite(WATER_TRIG_PIN, LOW); delayMicroseconds(2);
+  digitalWrite(WATER_TRIG_PIN, HIGH); delayMicroseconds(10);
+  digitalWrite(WATER_TRIG_PIN, LOW);
+  long duration = pulseIn(WATER_ECHO_PIN, HIGH);
+  float distanceCm = duration * 0.034 / 2.0;
+  float maxDistCm = 30.0; // Distance when tank is empty
+  int pct = constrain((int)((1.0 - distanceCm / maxDistCm) * 100), 0, 100);
+  return pct;
+}
+*/

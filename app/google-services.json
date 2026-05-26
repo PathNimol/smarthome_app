@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "495461584734",
+    "firebase_url": "https://smarthome-38b19-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "smarthome-38b19",
+    "storage_bucket": "smarthome-38b19.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:495461584734:android:46612be4689d40f01c89cf",
+        "android_client_info": {
+          "package_name": "com.example.smarthome"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC8CUy64a-_SJpn3oTt-dALDkqtday28oM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
