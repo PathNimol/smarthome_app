@@ -62,6 +62,8 @@ dependencies {
     implementation("com.google.firebase:firebase-database-ktx")
     implementation("com.google.firebase:firebase-firestore-ktx")
     implementation("com.google.firebase:firebase-messaging-ktx")
+    
+
 
     // ── Hilt ──────────────────────────────────────────────────────────────────
     implementation("com.google.dagger:hilt-android:2.52")
