@@ -1,11 +1,20 @@
 package com.example.smarthome.data.model
 
-import com.google.firebase.database.PropertyName
-
+/**
+ * DashboardScreen imports RainStatus (not RainSensor).
+ * This is the model used by DashboardScreen's RainStatusCard composable.
+ *
+ * Matches Firebase: smarthome/sensors/rain
+ * {
+ *   "active": false,
+ *   "detectedAt": 1779793457405,
+ *   "intensity": "moderate",
+ *   "isRaining": false
+ * }
+ */
 data class RainStatus(
-    @get:PropertyName("isRaining") @set:PropertyName("isRaining")
-    var isRaining: Boolean = false,
-    val intensity: String = "none",     // "none" | "light" | "moderate" | "heavy"
-    val detectedAt: Long = 0L,
-    val active: Boolean = false
+    val isRaining: Boolean = false,
+    val active: Boolean = false,
+    val intensity: String = "",
+    val detectedAt: Long = 0L
 )

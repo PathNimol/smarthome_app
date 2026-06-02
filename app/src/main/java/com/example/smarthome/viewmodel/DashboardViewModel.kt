@@ -1,9 +1,8 @@
 package com.example.smarthome.viewmodel
 
-
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.smarthome.data.model.DashboardState
+import com.example.smarthome.data.model.*
 import com.example.smarthome.data.repository.SmartHomeRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
@@ -25,25 +24,33 @@ class DashboardViewModel @Inject constructor(
     private fun observeAll() {
         viewModelScope.launch {
             combine(
-                repository.observeDevice("fan"),
-                repository.observeDevice("led_light"),
-                repository.observeWaterLevel(),
-                repository.observeRain(),
-                repository.observeNotifications(limit = 3)
-            ) { fan, led, water, rain, notifs ->
+                repository.observeDevice("fan"),           // Flow<Device>
+                repository.observeDevice("led_light"),     // Flow<Device>
+                repository.observeWaterLevel(),            // Flow<WaterLevel>
+                repository.observeRain(),                  // Flow<RainStatus>
+                repository.observeNotifications(limit = 3) // Flow<List<AppNotification>>
+            ) { fan: Device,
+                led: Device,
+                water: WaterLevel,
+                rain: RainStatus,
+                notifs: List<AppNotification> ->
                 DashboardState(
-                    fan = fan,
-                    ledLight = led,
-                    waterLevel = water,
-                    rain = rain,
+                    fan                 = fan,
+                    ledLight            = led,
+                    waterLevel          = water,
+                    rain                = rain,
                     recentNotifications = notifs,
-                    isLoading = false
+                    isLoading           = false
                 )
-            }.catch {
-                _state.update { it.copy(isLoading = false) }
+            }.catch { e ->
+                _state.update { it.copy(isLoading = false, error = e.message) }
             }.collect { dashboardState ->
                 _state.value = dashboardState
             }
         }
+    }
+
+    fun clearError() {
+        _state.update { it.copy(error = null) }
     }
 }
